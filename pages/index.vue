@@ -1,26 +1,41 @@
 <template>
   <section class="container">
     <div class="index">
-      <h1 class="title">Hello</h1>
-      <img src="/face_bw_2.png" width="300" height="300">
-      <h2 class="subtitle">
-      </h2>
-      <h3 class="element"></h3>
-      <icon name="github" scale="2" class="alert"></icon>
-      <icon name="twitter" scale="2" class="alert"></icon>
-      <icon name="facebook" scale="2" class="alert"></icon>
+      <div class="top">
+        <h1 class="title">Hello</h1>
+        <img src="/face_bw_2.png" width="300" height="300">
+        <h2 class="subtitle"></h2>
+        <h3 class="element"></h3>
+      </div>
+      <div class="bottom">
+        <div :class="['network',online ? 'online' : 'offline']">
+        <div class="circle"></div>
+        {{ online ? 'online' : 'offline' }}
+        </div>
+        <a href="http://github.com/narnikgamarnikus"><icon name="github" scale="2"></icon></a>
+        <a href="https://twitter.com/narnikgamarnik"><icon name="twitter" scale="2"></icon></a>
+        <a href="https://www.facebook.com/narnikgamarnik"><icon name="facebook" scale="2"></icon></a>
+      </div>
     </div> 
   </section>
 </template>
 
 <script>
 import Typed from 'typed.js'
-// import Icon from 'vue-awesome/components/Icon'
-import 'vue-awesome/icons'
+
+import 'vue-awesome/icons/github'
+import 'vue-awesome/icons/twitter'
+import 'vue-awesome/icons/facebook'
+
 export default {
   head: {
     title: 'Home page'
   },
+  data () {
+    return {
+      online: true
+    }
+  },  
   mounted () {
     var typed = new Typed('.subtitle', {
       strings: ['I\'m lifetime learner', 'I\'m web developer', 'I\'m software developer'],
@@ -30,36 +45,63 @@ export default {
       showCursor: false
     })
     console.log(typed)
-  }
+    if (!window.navigator) {
+      this.online = false
+      return
+    }
+    this.online = Boolean(window.navigator.onLine)
+    window.addEventListener('offline', this._toggleNetworkStatus)
+    window.addEventListener('online', this._toggleNetworkStatus)    
+  },
+  methods: {
+    _toggleNetworkStatus ({ type }) {
+      this.online = type === 'online'
+    }
+  },
+  destroyed () {
+    window.removeEventListener('offline', this._toggleNetworkStatus)
+    window.removeEventListener('online', this._toggleNetworkStatus)
+  }  
 }
 </script>
 
 <style lang="sass">
-@import url('https://fonts.googleapis.com/css?family=Bowlby+One+SC');
-.container 
-  min-height: 80vh
-  display: flex
-  justify-content: center
-  align-items: center
-  text-align: center
+.bottom
+  display: -webkit-flex;
+  display: flex;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+  margin-bottom: 2rem
+
+.bottom a 
+  color: #000000
 
 .index 
   width: 30rem
-  height: 50rem
+  height: 40rem
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
-.title
-  font-family: 'Bowlby One SC', cursive;
-  letter-spacing: 25px
-  text-transform: uppercase
-  font-size: 50px
+.icons
+  top: 0
 
-.subtitle
-  font-family: 'Bowlby One SC', cursive;
-  font-weight: 300
-  font-size: 40px
-  letter-spacing: 20px
-  color: #000000
-  word-spacing: 5px
-  padding-bottom: 15px
-  text-transform: uppercase 
+.top 
+  margin-top: 3rem 
+
+.network 
+  font-weight: 400
+  font-size: 1rem
+  
+.network .circle
+  display: inline-block
+  width: 1rem
+  height: 1rem
+  background: green
+  padding: .1rem .5rem
+  border-radius: 1rem
+
+.network.offline .circle 
+  background: red
+
 </style>
